@@ -1,0 +1,76 @@
+.users-page-container {
+  height: 100%;
+  padding: 30px;
+  background-image: url('/public/images/dashboard-bg.jpg');
+  background-size: cover;
+  background-position: center;
+  color: white;
+  backdrop-filter: blur(6px);
+}
+
+.users-page-container h1 {
+  text-align: center;
+  margin-bottom: 20px;
+  color: black;
+}
+
+.add-user-form {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  margin-bottom: 30px;
+}
+
+.add-user-form input {
+  padding: 10px;
+  border-radius: 6px;
+  border: none;
+}
+
+.add-user-form button {
+  padding: 10px 15px;
+  border-radius: 6px;
+  border: none;
+  background-color: #61dafb;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.add-user-form button:hover {
+  background-color: #21a1f1;
+}
+
+.users-table {
+  width: 80%;
+  margin: 0 auto;
+  border-collapse: collapse;
+}
+
+.users-table th,
+.users-table td {
+  border: 1px solid rgba(255,255,255,0.5);
+  padding: 10px;
+  text-align: left;
+  color: white;
+}
+
+.users-table th {
+  background-color: rgba(0,0,0,0.6);
+}
+
+.users-table td {
+  background-color: rgba(0,0,0,0.4);
+}
+
+.delete-btn {
+  background-color: #f44336;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.delete-btn:hover {
+  background-color: #d32f2f;
+}

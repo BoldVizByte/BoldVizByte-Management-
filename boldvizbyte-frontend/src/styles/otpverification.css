@@ -1,0 +1,121 @@
+/* Overlay */
+.otp-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.75);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: url("/public/images/dashboard-bg.jpg") center/cover no-repeat;
+  background-size: cover;
+  background-position: center;
+  font-family: system-ui, sans-serif;
+}
+
+/* Card */
+.otp-card {
+  background: rgba(0, 0, 0, 0.65);
+  padding: 40px;
+  border-radius: 12px;
+  width: 100%;
+  max-width: 460px;
+  color: white;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6);
+}
+
+/* Header */
+.otp-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.otp-title {
+  font-size: 26px;
+  font-weight: 600;
+}
+
+.otp-close {
+  background: none;
+  border: none;
+  font-size: 28px;
+  color: white;
+  cursor: pointer;
+}
+
+/* Subtitle */
+.otp-subtitle {
+  margin: 15px 0 25px;
+  color: #ccc;
+}
+
+/* Error */
+.otp-error {
+  color: #ff6b6b;
+  margin-bottom: 12px;
+}
+
+/* Input */
+.otp-input {
+  width: 100%;
+  padding: 14px 16px;
+  border-radius: 8px;
+  border: none;
+  background: #424242;
+  color: white;
+  font-size: 15px;
+  outline: none;
+}
+
+.otp-input::placeholder {
+  color: #aaa;
+}
+
+/* Timer */
+.otp-timer {
+  margin: 12px 0;
+  color: #aaa;
+}
+
+/* Resend */
+.otp-resend {
+  background: none;
+  border: none;
+  color: #1dd1a1;
+  cursor: pointer;
+  margin: 12px 0;
+  font-size: 14px;
+}
+
+.otp-resend:hover {
+  text-decoration: underline;
+}
+
+/* Button */
+.otp-button {
+  width: 100%;
+  padding: 14px;
+  background: #1dd1a1;
+  border: none;
+  border-radius: 8px;
+  color: black;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 10px;
+}
+
+.otp-button:hover {
+  background: #18c996;
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+  .otp-card {
+    padding: 30px 20px;
+  }
+
+  .otp-title {
+    font-size: 22px;
+  }
+}

@@ -1,0 +1,104 @@
+.magic-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.75);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+ background: url("/public/images/dashboard-bg.jpg") center/cover no-repeat;
+  background-size: cover;
+  background-position: center;
+  font-family: system-ui, sans-serif;
+}
+
+.magic-card {
+  background: rgba(0, 0, 0, 0.65);
+  padding: 40px;
+  border-radius: 12px;
+  width: 100%;
+  max-width: 460px;
+  color: white;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6);
+  text-align: center;
+}
+
+.magic-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.magic-title {
+  font-size: 26px;
+  font-weight: 600;
+}
+
+.magic-close {
+  background: none;
+  border: none;
+  font-size: 28px;
+  color: white;
+  cursor: pointer;
+}
+
+.magic-icon {
+  font-size: 60px;
+  color: #1dd1a1;
+  margin: 30px 0 20px;
+}
+
+.magic-text {
+  font-size: 16px;
+  color: #ccc;
+}
+
+.magic-email {
+  font-size: 16px;
+  font-weight: 600;
+  margin: 10px 0;
+}
+
+.magic-subtext {
+  font-size: 14px;
+  color: #aaa;
+  margin-bottom: 25px;
+}
+
+.magic-button {
+  width: 100%;
+  padding: 14px;
+  background: #1dd1a1;
+  border: none;
+  border-radius: 8px;
+  color: black;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.magic-button:hover {
+  background: #18c996;
+}
+
+.magic-resend {
+  background: none;
+  border: none;
+  color: #1dd1a1;
+  cursor: pointer;
+  margin-top: 15px;
+  font-size: 14px;
+}
+
+.magic-resend:hover {
+  text-decoration: underline;
+}
+
+@media (max-width: 480px) {
+  .magic-card {
+    padding: 30px 20px;
+  }
+
+  .magic-title {
+    font-size: 22px;
+  }
+}

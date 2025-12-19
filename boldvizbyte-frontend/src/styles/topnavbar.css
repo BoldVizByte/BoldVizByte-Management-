@@ -1,0 +1,18 @@
+.top-navbar {
+  height: 60px;
+  display: flex;
+  align-items: center;
+  padding: 0 20px;
+  background: rgba(30,30,30,0.95);
+  color: white;
+  font-weight: bold;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.5);
+  gap: 15px; /* space between logo and text */
+}
+
+.top-navbar-logo {
+  height: 40px; /* adjust size as needed */
+}

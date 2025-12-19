@@ -1,0 +1,103 @@
+/* Full-page container with background */
+.projects-page-container {
+  min-height: 100vh;
+  padding: 20px;
+  color: black;
+  background-image: url('/public/images/dashboard-bg.jpg'); /* same background as dashboard */
+  background-size: cover;
+  background-position: center;
+  backdrop-filter: blur(6px); /* slight blur for professional look */
+}
+
+/* Add Project Form */
+.add-project-form {
+  margin-bottom: 20px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.add-project-form input,
+.add-project-form select {
+  padding: 8px 12px;
+  border-radius: 6px;
+  border: none;
+  outline: none;
+  font-size: 14px;
+}
+
+.add-project-form button {
+  padding: 8px 16px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  background-color: #61dafb;
+  color: #000;
+  font-weight: bold;
+  transition: 0.3s;
+}
+
+.add-project-form button:hover {
+  background-color: #21a1f1;
+}
+
+/* Projects Table */
+.projects-table {
+  width: 100%;
+  border-collapse: collapse;
+  backdrop-filter: blur(6px); /* blur behind table */
+  background: rgba(0, 0, 0, 0.45); /* semi-transparent */
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.projects-table th,
+.projects-table td {
+  padding: 12px;
+  text-align: left;
+  color: white;
+}
+
+.projects-table th {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.projects-table td button {
+  margin-right: 5px;
+  padding: 6px 12px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: 0.2s;
+}
+
+.projects-table td button:first-child {
+  background-color: #ffa500; /* Toggle Status */
+  color: white;
+}
+
+.projects-table td button:first-child:hover {
+  background-color: #e69500;
+}
+
+.projects-table td button:last-child {
+  background-color: red; /* Delete */
+  color: white;
+}
+
+.projects-table td button:last-child:hover {
+  background-color: darkred;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .add-project-form {
+    flex-direction: column;
+  }
+
+  .projects-table th,
+  .projects-table td {
+    padding: 8px;
+  }
+}

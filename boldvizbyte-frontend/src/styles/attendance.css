@@ -1,0 +1,174 @@
+/* Container with blurred background */
+.attendance-container {
+  position: relative;
+  padding: 30px;
+  min-height: 100vh;
+  color: white;
+  overflow: hidden; /* keeps pseudo-element contained */
+}
+
+/* Blurred background image */
+.attendance-container::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: url('/public/images/dashboard-bg.jpg');
+  background-size: cover;
+  background-position: center;
+  filter: blur(6px); /* blur the background */
+  z-index: -1; /* behind content */
+}
+
+/* Ensure content is above the background */
+.attendance-container > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* Title */
+.attendance-title {
+  text-align: center;
+  margin-bottom: 20px;
+  color: black;
+}
+
+/* 🆕 Summary + Controls Row */
+.attendance-summary-row {
+  display: flex;
+  justify-content: space-between; /* summary left, controls right */
+  align-items: center;
+  margin-bottom: 20px;
+  width: 100%;
+}
+
+/* Summary Cards */
+.attendance-summary {
+  display: flex;
+  gap: 10px;
+}
+
+.summary-card {
+  padding: 2px;
+  width: 60px;
+  height: 60px;
+  text-align: center;
+  border-radius: 12px;
+  background: rgba(0, 0, 0, 0.55);
+  box-shadow: 0 0 10px rgba(0,0,0,0.4);
+}
+
+.present-card h2,
+.present-card p {
+  color: #4caf50;
+}
+
+.absent-card h2,
+.absent-card p {
+  color: #f44336;
+}
+
+/* Controls: date picker + buttons */
+.attendance-controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.date-picker,
+.mark-all-btn,
+.save-attendance-btn {
+  display: inline-block;
+  margin: 0; /* remove vertical stacking */
+}
+
+/* Table */
+.attendance-table {
+  width: 80%;
+  margin: auto;
+  border-collapse: collapse;
+  background: rgba(0,0,0,0.5);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.attendance-table th,
+.attendance-table td {
+  padding: 12px;
+  border-bottom: 1px solid rgba(255,255,255,0.2);
+}
+
+.attendance-table th {
+  background: rgba(255,255,255,0.1);
+}
+
+.status-present {
+  color: #4caf50;
+  font-weight: bold;
+}
+
+.status-absent {
+  color: #f44336;
+  font-weight: bold;
+}
+
+/* Existing Buttons */
+.present-btn,
+.absent-btn {
+  padding: 6px 12px;
+  margin-right: 5px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.present-btn {
+  background-color: #4caf50;
+  color: white;
+}
+
+.absent-btn {
+  background-color: #f44336;
+  color: white;
+}
+
+.present-btn:hover {
+  background-color: #45a049;
+}
+
+.absent-btn:hover {
+  background-color: #d32f2f;
+}
+
+/* Mark All Present button */
+.mark-all-btn {
+  background-color: #2196f3;
+  color: white;
+  padding: 8px 14px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.mark-all-btn:hover {
+  background-color: #1976d2;
+}
+
+/* Save Attendance button */
+.save-attendance-btn {
+  background-color: #ff9800;
+  color: rgb(81, 232, 172);
+  padding: 8px 14px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.save-attendance-btn:hover {
+  background-color: #fb8c00;
+}
