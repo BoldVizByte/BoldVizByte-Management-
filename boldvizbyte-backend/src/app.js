@@ -12,14 +12,12 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// 🔴 THIS LINE IS CRITICAL
 app.use("/api/auth", authRoutes);
-app.use("/api/users", usersRoutes);
-app.use("/api/tasks", tasksRoutes);
 app.use("/api/projects", projectsRoutes);
 app.use("/api/attendance", attendanceRoutes);
-app.use("/api/sumary", summaryRoute);
-
+app.use("/api/summary", summaryRoute);
+app.use("/api/tasks", tasksRoutes);
+app.use("/api/users", usersRoutes);
 
 
 app.get("/", (req, res) => {
