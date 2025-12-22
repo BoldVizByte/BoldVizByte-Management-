@@ -1,19 +1,77 @@
-export function listProjects(req, res) {
-  res.json({ message: "All projects", data: [] });
-}
+import Project from "../models/projectsModel.js";
 
-export function getProject(req, res) {
-  res.json({ message: `Project ${req.params.id}`, data: null });
-}
+/**
+ * GET all projects
+ */
+export const getProjects = async (req, res) => {
+  try {
+    const projects = await Project.find().sort({ createdAt: -1 });
+    res.json(projects);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
 
-export function createProject(req, res) {
-  res.json({ message: "Project created", data: req.body });
-}
+/**
+ * CREATE project
+ */
+export const createProject = async (req, res) => {
+  try {
+    const { title, start, end, status } = req.body;
 
-export function updateProject(req, res) {
-  res.json({ message: `Project ${req.params.id} updated`, data: req.body });
-}
+    if (!title || !start || !end) {
+      return res.status(400).json({ message: "All fields are required" });
+    }
 
-export function removeProject(req, res) {
-  res.json({ message: `Project ${req.params.id} deleted` });
-}
+    const project = await Project.create({
+      title,
+      start,
+      end,
+      status,
+    });
+
+    res.status(201).json(project);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+/**
+ * DELETE project
+ */
+export const deleteProject = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const project = await Project.findByIdAndDelete(id);
+    if (!project) {
+      return res.status(404).json({ message: "Project not found" });
+    }
+
+    res.json({ message: "Project deleted successfully" });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+/**
+ * TOGGLE project status
+ */
+export const toggleProjectStatus = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const project = await Project.findById(id);
+    if (!project) {
+      return res.status(404).json({ message: "Project not found" });
+    }
+
+    project.status =
+      project.status === "In Progress" ? "Completed" : "In Progress";
+
+    await project.save();
+    res.json(project);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
