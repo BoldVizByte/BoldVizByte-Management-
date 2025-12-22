@@ -1,22 +1,16 @@
 import express from "express";
-import * as projectsController from "../controllers/projectsController.js";
-import * as projectsValidator from "../validators/projectsValidator.js";
+import {
+  getProjects,
+  createProject,
+  deleteProject,
+  toggleProjectStatus,
+} from "../controllers/projectsController.js";
 
 const router = express.Router();
 
-// List all projects
-router.get("/", projectsController.listProjects);
-
-// Get project by ID
-router.get("/:id", projectsValidator.idParamRule, projectsController.getProject);
-
-// Create project
-router.post("/", projectsValidator.createProjectRules, projectsController.createProject);
-
-// Update project
-router.put("/:id", projectsValidator.idParamRule, projectsValidator.updateProjectRules, projectsController.updateProject);
-
-// Delete project
-router.delete("/:id", projectsValidator.idParamRule, projectsController.removeProject);
+router.get("/", getProjects);
+router.post("/", createProject);
+router.delete("/:id", deleteProject);
+router.patch("/:id/status", toggleProjectStatus);
 
 export default router;
