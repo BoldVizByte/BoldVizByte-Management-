@@ -1,13 +1,30 @@
 /* Full-page container with background */
 .projects-page-container {
   min-height: 100vh;
-  padding: 20px;
+  padding: 40px;
   color: black;
   background-image: url('/public/images/dashboard-bg.jpg'); /* same background as dashboard */
   background-size: cover;
   background-position: center;
-  backdrop-filter: blur(6px); /* slight blur for professional look */
+  display: flex;
+  justify-content: center;
+  align-items: flex-start; 
 }
+.projects-card {
+  width: 100%;
+  max-width: 1200px;
+  padding: 25px;
+  border-radius: 16px;
+
+  background-image: 
+    linear-gradient(rgba(255,255,255,0.6), rgba(255,255,255,0.6)),
+    url("/public/images/dashboard-bg.jpg");
+  background-size: cover;
+  background-position: center;
+
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+}
+
 
 /* Add Project Form */
 .add-project-form {
@@ -19,6 +36,9 @@
 
 .add-project-form input,
 .add-project-form select {
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+  background: rgba(0, 0, 0, 0.30); 
+  color:white;
   padding: 8px 12px;
   border-radius: 6px;
   border: none;
@@ -31,22 +51,22 @@
   border-radius: 6px;
   border: none;
   cursor: pointer;
-  background-color: #61dafb;
-  color: #000;
+  background-color: #369694;
+  color:white;
   font-weight: bold;
   transition: 0.3s;
 }
 
 .add-project-form button:hover {
-  background-color: #21a1f1;
+  background-color: #237876;
 }
 
 /* Projects Table */
 .projects-table {
   width: 100%;
   border-collapse: collapse;
-  backdrop-filter: blur(6px); /* blur behind table */
-  background: rgba(0, 0, 0, 0.45); /* semi-transparent */
+  backdrop-filter: blur(6px); 
+  background: rgba(0, 0, 0, 0.45); 
   border-radius: 12px;
   overflow: hidden;
 }
@@ -73,12 +93,12 @@
 }
 
 .projects-table td button:first-child {
-  background-color: #ffa500; /* Toggle Status */
+  background-color: #369694; /* Toggle Status */
   color: white;
 }
 
 .projects-table td button:first-child:hover {
-  background-color: #e69500;
+  background-color: #237876;
 }
 
 .projects-table td button:last-child {

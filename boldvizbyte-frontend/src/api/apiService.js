@@ -16,8 +16,9 @@ export const updateTaskStatus = (id, status) =>
 export const getProjects = () => API.get("/projects");
 export const addProject = (project) => API.post("/projects", project);
 export const deleteProject = (id) => API.delete(`/projects/${id}`);
-export const updateProjectStatus = (id, status) =>
-  API.put(`/projects/${id}`, { status });
+export const updateProjectStatus = (id) =>
+  API.patch(`/projects/${id}/status`);
+
 
 // Attendance
 export const getAttendance = () => API.get("/attendance");
