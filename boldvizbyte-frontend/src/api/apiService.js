@@ -19,6 +19,7 @@ export const deleteProject = (id) => API.delete(`/projects/${id}`);
 export const updateProjectStatus = (id) =>
   API.patch(`/projects/${id}/status`);
 
+
 // Attendance
 export const getAttendance = () => API.get("/attendance");
 export const markAttendance = (userId, status) =>
