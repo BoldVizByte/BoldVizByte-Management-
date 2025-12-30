@@ -6,31 +6,34 @@ import {
   deleteProject,
   updateProjectStatus,
 } from "../apiService";
+import { Trash, ArrowBigUpDash  } from 'lucide-react';
 
 const ProjectsPage = () => {
-  // ✅ MongoDB projects
   const [projects, setProjects] = useState([]);
 
   const [newProjectTitle, setNewProjectTitle] = useState("");
   const [newProjectStatus, setNewProjectStatus] = useState("In Progress");
   const [newProjectStartDate, setNewProjectStartDate] = useState("");
   const [newProjectEndDate, setNewProjectEndDate] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  // 🔹 Fetch projects on page load
   useEffect(() => {
     fetchProjects();
   }, []);
 
   const fetchProjects = async () => {
     try {
+      setLoading(true);
       const { data } = await getProjects();
       setProjects(data);
     } catch (error) {
       console.error("Error fetching projects", error);
+      alert("Failed to fetch projects");
+    } finally {
+      setLoading(false);
     }
   };
 
-  // 🔹 Add project
   const handleAddProject = async () => {
     if (!newProjectTitle || !newProjectStartDate || !newProjectEndDate) {
       alert("All fields required");
@@ -48,7 +51,6 @@ const ProjectsPage = () => {
       const { data } = await addProject(project);
       setProjects((prev) => [...prev, data]);
 
-      // reset form
       setNewProjectTitle("");
       setNewProjectStartDate("");
       setNewProjectEndDate("");
@@ -58,7 +60,6 @@ const ProjectsPage = () => {
     }
   };
 
-  // 🔹 Delete project
   const handleDeleteProject = async (id) => {
     try {
       await deleteProject(id);
@@ -68,7 +69,7 @@ const ProjectsPage = () => {
     }
   };
 
-  // 🔹 Toggle project status
+  // ✅ FIXED HERE
   const handleToggleStatus = async (id) => {
     try {
       const { data } = await updateProjectStatus(id);
@@ -85,7 +86,6 @@ const ProjectsPage = () => {
       <div className="projects-card">
         <h1>Projects Management</h1>
 
-        {/* 🔹 Add Project Form */}
         <div className="add-project-form">
           <input
             className="add-project-input-title"
@@ -118,7 +118,6 @@ const ProjectsPage = () => {
           <button onClick={handleAddProject}>Add Project</button>
         </div>
 
-        {/* 🔹 Projects Table */}
         <table className="projects-table">
           <thead>
             <tr>
@@ -143,23 +142,15 @@ const ProjectsPage = () => {
                 <tr key={project._id}>
                   <td>{index + 1}</td>
                   <td>{project.title}</td>
-                  <td>
-                    {new Date(project.start).toLocaleDateString()}
-                  </td>
-                  <td>
-                    {new Date(project.end).toLocaleDateString()}
-                  </td>
+                  <td>{new Date(project.start).toLocaleDateString()}</td>
+                  <td>{new Date(project.end).toLocaleDateString()}</td>
                   <td>{project.status}</td>
                   <td>
-                    <button
-                      onClick={() => handleToggleStatus(project._id)}
-                    >
-                      Toggle Status
+                    <button onClick={() => handleToggleStatus(project._id)}>
+                     <ArrowBigUpDash />
                     </button>
-                    <button
-                      onClick={() => handleDeleteProject(project._id)}
-                    >
-                      Delete
+                    <button onClick={() => handleDeleteProject(project._id)}>
+                      <Trash />
                     </button>
                   </td>
                 </tr>

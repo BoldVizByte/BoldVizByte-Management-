@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import "../styles/tasks.css";
+import { Trash, ArrowBigUpDash  } from 'lucide-react';
 
 const TaskPage = () => {
   const [tasks, setTasks] = useState([]);
@@ -220,9 +221,9 @@ const TaskPage = () => {
                       disabled={task.status === "Completed"}
                       onClick={() => updateStatus(task._id)}
                     >
-                      ✔
+                      <ArrowBigUpDash />
                     </button>
-                    <button onClick={() => deleteTask(task._id)}>❌</button>
+                    <button onClick={() => deleteTask(task._id)}> <Trash /> </button>
                   </td>
                 </tr>
               ))

@@ -51,14 +51,14 @@
   border-radius: 6px;
   border: none;
   cursor: pointer;
-  background-color: #61dafb;
-  color: #000;
+  background-color: #369694;
+  color:white;
   font-weight: bold;
   transition: 0.3s;
 }
 
 .add-project-form button:hover {
-  background-color: #21a1f1;
+  background-color: #237876;
 }
 
 /* Projects Table */
@@ -93,12 +93,12 @@
 }
 
 .projects-table td button:first-child {
-  background-color: #ffa500; /* Toggle Status */
+  background-color: #369694; /* Toggle Status */
   color: white;
 }
 
 .projects-table td button:first-child:hover {
-  background-color: #e69500;
+  background-color: #237876;
 }
 
 .projects-table td button:last-child {

@@ -1,6 +1,8 @@
 // Sidebar.jsx - Complete Component
 import { NavLink, useNavigate } from "react-router-dom";
-import { FaHome, FaBars, FaUser } from "react-icons/fa";
+import { FaHome, FaBars, FaUser, FaTasks } from "react-icons/fa";
+import { AiFillProject } from "react-icons/ai";
+import { SiGoogletasks } from "react-icons/si";
 import "../styles/sidebar.css";
 
 const Sidebar = ({ isOpen, setIsOpen }) => {
@@ -33,25 +35,25 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
             </li>
             <li>
             <NavLink to="/users" className="menu-link">
-              <FaHome className="menu-icon" />
+             <FaUser className="menu-icon" />
               <span className="menu-text">User</span>
             </NavLink>
           </li>
           <li>
             <NavLink to="/attendance" className="menu-link">
-              <FaHome className="menu-icon" />
+              <SiGoogletasks  className="menu-icon" />
               <span className="menu-text">Attendance</span>
             </NavLink>
           </li>
           <li>
             <NavLink to="/tasks" className="menu-link">
-              <FaHome className="menu-icon" />
+              <FaTasks className="menu-icon" />
               <span className="menu-text">Task</span>
             </NavLink>
           </li>
           <li>
             <NavLink to="/projects" className="menu-link">
-              <FaHome className="menu-icon" />
+              <AiFillProject  className="menu-icon" />
               <span className="menu-text">Project</span>
             </NavLink>
           </li>
