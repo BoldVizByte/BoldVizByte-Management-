@@ -13,7 +13,7 @@ const OtpVerification = () => {
   const location = useLocation();
   const email = location.state?.email;
 
- 
+
   useEffect(() => {
     if (!email) {
       navigate("/login");
@@ -31,7 +31,7 @@ const OtpVerification = () => {
     return () => clearInterval(interval);
   }, [timer]);
 
-  const handleVerifyOTP = async() => {
+  const handleVerifyOTP = async () => {
     setError("");
 
     if (otp.length !== 6) {
@@ -40,39 +40,44 @@ const OtpVerification = () => {
     }
 
     try {
-    const res = await API.post("/auth/verify-otp", {
-      email,
-      otp,
-    });
-    const resetToken = res.data.resetToken;
-    navigate("/reset-password", {
-      state: {
+      const res = await API.post("/auth/verify-otp", {
         email,
-        resetToken,
-      },
-    });
-  } catch (error) {
-    if (error.response) {
-      setError(error.response.data.message);
-    } else {
-      setError("Server error");
+        otp,
+      });
+      const resetToken = res.data.resetToken;
+      navigate("/reset-password", {
+        state: {
+          email,
+          resetToken,
+        },
+      });
+    } catch (error) {
+      if (error.response) {
+        setError(
+          error.response?.data?.message ||
+          error.response?.data?.error ||
+          "Server error"
+        );
+
+      } else {
+        setError("Server error");
+      }
     }
-  }
   };
 
   const handleResendOTP = async () => {
-  try {
-    await API.post("/auth/send-otp", { email });
+    try {
+      await API.post("/auth/send-otp", { email });
 
-    setTimer(60);
-    setOtp("");
-    setError("");
+      setTimer(60);
+      setOtp("");
+      setError("");
 
-    alert("New OTP sent to " + email);
-  } catch (error) {
-    alert("Failed to resend OTP");
-  }
-};
+      alert("New OTP sent to " + email);
+    } catch (error) {
+      alert("Failed to resend OTP");
+    }
+  };
 
 
   return (
@@ -110,9 +115,14 @@ const OtpVerification = () => {
           </button>
         )}
 
-        <button className="otp-button" onClick={handleVerifyOTP} disabled={timer === 0}>
+        <button
+          className="otp-button"
+          onClick={handleVerifyOTP}
+          disabled={timer === 0 || otp.length !== 6}
+        >
           Verify OTP
         </button>
+
       </div>
     </div>
   );

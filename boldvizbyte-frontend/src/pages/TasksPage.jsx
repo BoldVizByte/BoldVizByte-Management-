@@ -14,8 +14,8 @@ const TaskPage = () => {
   const [projectId, setProjectId] = useState(""); 
 
   // Change this to match your environment
-  const API_URL = "http://localhost:5000/api";
-  // const API_URL = "https://boldvizbyte-backend-1.onrender.com";
+  const API_URL = `${process.env.REACT_APP_API_URL}/api`;
+
 
   useEffect(() => {
     fetch(`${API_URL}/users`)

@@ -22,22 +22,21 @@ const ResetPassword = () => {
 
 
   useEffect(() => {
-    if (!location.state?.resetToken) {
-      navigate("/login");
-    }
-  }, [location, navigate]);
+    if (!resetToken) navigate("/login");
+  }, [resetToken, navigate]);
+
 
   const getPasswordStrength = () => {
     if (!password) return "";
 
-    
+
     if (password.length < 8) return "Invalid";
 
     const hasLetter = /[a-zA-Z]/.test(password);
     const hasNumber = /[0-9]/.test(password);
     const hasSpecial = /[@$!%*?&#^(){}[\]/.,]/.test(password);
     const onlyNumbers = /^[0-9]+$/.test(password);
-    const repeatedChars = /^(\d)\1+$/.test(password);
+    const repeatedChars = /^(.)\1+$/.test(password);
 
     const emailName = email?.split("@")[0]?.toLowerCase();
     const isEmailBased = emailName && password.toLowerCase().includes(emailName);
@@ -78,34 +77,34 @@ const ResetPassword = () => {
       return;
     }
 
-    if (password.length < 8) {
-      setError("Password must be at least 8 characters");
-      return;
-    }
-
     if (password !== confirmPassword) {
       setError("Passwords do not match");
       return;
     }
 
     try {
-    await API.post("/auth/reset-password", {
-      token: resetToken,
-      password,
-    });
+      await API.post("/auth/reset-password", {
+        token: resetToken,
+        password,
+      });
 
-    setSuccess("Your password has been reset successfully.");
+      setSuccess("Your password has been reset successfully.");
 
-    setTimeout(() => {
-      navigate("/login");
-    }, 2000);
+      setTimeout(() => {
+        navigate("/login");
+      }, 2000);
     } catch (error) {
-    if (error.response) {
-      setError(error.response.data.message);
-    } else {
-      setError("Server error");
+      if (error.response) {
+        setError(
+          error.response?.data?.message ||
+          error.response?.data?.error ||
+          "Server error"
+        );
+
+      } else {
+        setError("Server error");
+      }
     }
-  }
 
   };
 

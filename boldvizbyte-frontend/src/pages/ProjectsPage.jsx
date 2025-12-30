@@ -6,7 +6,7 @@ import {
   deleteProject,
   updateProjectStatus,
 } from "../apiService";
-import { Trash, ArrowBigUpDash  } from 'lucide-react';
+import { Trash, ArrowBigUpDash } from 'lucide-react';
 
 const ProjectsPage = () => {
   const [projects, setProjects] = useState([]);
@@ -20,6 +20,26 @@ const ProjectsPage = () => {
   useEffect(() => {
     fetchProjects();
   }, []);
+
+  useEffect(() => {
+  let mounted = true;
+
+  const load = async () => {
+    try {
+      setLoading(true);
+      const { data } = await getProjects();
+      if (mounted) setProjects(data);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  load();
+  return () => (mounted = false);
+}, []);
+
 
   const fetchProjects = async () => {
     try {
@@ -115,7 +135,9 @@ const ProjectsPage = () => {
             <option value="Completed">Completed</option>
           </select>
 
-          <button onClick={handleAddProject}>Add Project</button>
+          <button onClick={handleAddProject} disabled={loading}>
+            {loading ? "Adding..." : "Add Project"}
+          </button>
         </div>
 
         <table className="projects-table">
@@ -147,7 +169,7 @@ const ProjectsPage = () => {
                   <td>{project.status}</td>
                   <td>
                     <button onClick={() => handleToggleStatus(project._id)}>
-                     <ArrowBigUpDash />
+                      <ArrowBigUpDash />
                     </button>
                     <button onClick={() => handleDeleteProject(project._id)}>
                       <Trash />

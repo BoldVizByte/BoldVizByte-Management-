@@ -21,9 +21,13 @@ const MagicLink = () => {
     try {
       await API.post("/auth/send-magic-link", { email });
       alert("Magic link sent again to " + email);
-    } catch (error) {
-      alert("Failed to resend magic link");
-    }
+    } 
+      catch (error) {
+        alert(
+          error.response?.data?.message ||
+          "Failed to resend magic link"
+        );
+      }
   };
 
 

@@ -1,36 +1,55 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import "../styles/users.css";
 import { getUsers, addUser, deleteUser } from "../apiService";
 
 const UsersPage = () => {
-  const [users, setUsers] = useState([
-    { id: 1, name: "Jones", email: "jones@example.com" },
-    { id: 2, name: "Vincy", email: "vincy@example.com" },
-  ]);
-
+  const [users, setUsers] = useState([]);
   const [newUserName, setNewUserName] = useState("");
   const [newUserEmail, setNewUserEmail] = useState("");
 
-  // Add user
-  const handleAddUser = () => {
-    if (newUserName && newUserEmail) {
-      const newUser = {
-        id: users.length + 1,
-        name: newUserName,
-        email: newUserEmail,
-      };
-      setUsers([...users, newUser]);
-      setNewUserName("");
-      setNewUserEmail("");
-    } else {
-      alert("Please enter name and email");
+  useEffect(() => {
+  const loadUsers = async () => {
+    try {
+      const { data } = await getUsers();
+      setUsers(data);
+    } catch (err) {
+      console.error("Failed to fetch users", err);
     }
   };
 
-  // Delete user
-  const handleDeleteUser = (id) => {
-    setUsers(users.filter((user) => user.id !== id));
+  loadUsers();
+}, []);
+
+  const handleAddUser = async () => {
+    if (!newUserName || !newUserEmail) {
+      alert("Please enter name and email");
+      return;
+    }
+
+    try {
+      const { data } = await addUser({
+        name: newUserName,
+        email: newUserEmail,
+      });
+
+      setUsers((prev) => [...prev, data]);
+      setNewUserName("");
+      setNewUserEmail("");
+    } catch (err) {
+      console.error("Add user failed", err);
+    }
   };
+
+
+  const handleDeleteUser = async (id) => {
+    try {
+      await deleteUser(id);
+      setUsers((prev) => prev.filter((user) => user._id !== id));
+    } catch (err) {
+      console.error("Delete failed", err);
+    }
+  };
+
 
   return (
     <div className="users-page-container">
@@ -64,21 +83,22 @@ const UsersPage = () => {
           </tr>
         </thead>
         <tbody>
-          {users.map((user) => (
-            <tr key={user.id}>
-              <td>{user.id}</td>
+          {users.map((user, index) => (
+            <tr key={user._id || index}>
+              <td>{index + 1}</td>
               <td>{user.name}</td>
               <td>{user.email}</td>
               <td>
                 <button
                   className="delete-btn"
-                  onClick={() => handleDeleteUser(user.id)}
+                  onClick={() => handleDeleteUser(user._id)}
                 >
                   Delete
                 </button>
               </td>
             </tr>
           ))}
+
         </tbody>
       </table>
     </div>

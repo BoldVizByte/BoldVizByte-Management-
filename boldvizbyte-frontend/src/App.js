@@ -11,8 +11,14 @@ import UsersPage from "./pages/UsersPage";
 import TasksPage from "./pages/TasksPage";
 import AttendancePage from "./pages/AttendancePage";
 import ProjectsPage from "./pages/ProjectsPage";
+import { useEffect } from "react";
+
 
 const AppRoutes = () => {
+  useEffect(() => {
+    console.log("API URL:", process.env.REACT_APP_API_URL);
+  }, []);
+
   return (
     <BrowserRouter>
       <Routes>
@@ -28,10 +34,10 @@ const AppRoutes = () => {
         <Route element={<Layout />}>
           <Route path="/" element={<Dashboard />} />
           <Route path="/dashboard" element={<Dashboard />} />
-           <Route path="/users" element={<UsersPage />} />
+          <Route path="/users" element={<UsersPage />} />
           <Route path="/tasks" element={<TasksPage />} />
           <Route path="/attendance" element={<AttendancePage />} />
-          <Route path="/projects" element={<ProjectsPage/>} />
+          <Route path="/projects" element={<ProjectsPage />} />
         </Route>
 
       </Routes>
