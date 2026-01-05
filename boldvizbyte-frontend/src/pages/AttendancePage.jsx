@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from "react";
 
+const API_BASE = "https://boldvizbyte-backend-1.onrender.com";
+
 const AttendancePage = () => {
   const [users, setUsers] = useState([]);
   const [attendance, setAttendance] = useState({});
@@ -13,33 +15,56 @@ const AttendancePage = () => {
   const [selectedDate, setSelectedDate] = useState(null);
   const [eventText, setEventText] = useState("");
   const [eventType, setEventType] = useState("holiday");
+  const [calendarAttendance, setCalendarAttendance] = useState({});
+
 
   useEffect(() => {
-    fetch("https://boldvizbyte-backend-1.onrender.com/api/users")
+    fetch(`${API_BASE}/api/users`)
       .then((res) => res.json())
       .then((data) => {
         const userList = data?.data || [];
         setUsers(userList);
 
-        const initialAttendance = {};
-        userList.forEach((user) => {
-          initialAttendance[user._id] = {
-            status: "--",
-            login: "--",
-            logout: "--",
-          };
+        const initial = {};
+        userList.forEach((u) => {
+          initial[u._id] = { status: "--", login: "--", logout: "--" };
         });
-        setAttendance(initialAttendance);
+        setAttendance(initial);
       })
       .catch((err) => console.error("Error fetching users:", err));
   }, []);
 
-  const getTime = () => {
-    return new Date().toLocaleTimeString([], {
+  useEffect(() => {
+    if (!users.length) return;
+
+    fetch(`${API_BASE}/api/attendance?date=${date}`)
+      .then((res) => res.json())
+      .then((res) => {
+        const map = {};
+        users.forEach((u) => {
+          map[u._id] = { status: "--", login: "--", logout: "--" };
+        });
+
+        (res.data || []).forEach((r) => {
+          map[r.userId._id || r.userId] = {
+            status: r.status,
+            login: r.login,
+            logout: r.logout,
+          };
+        });
+
+        setAttendance(map);
+      })
+      .catch((err) => {
+        console.error("Error fetching attendance:", err);
+      });
+  }, [date, users]);
+
+  const getTime = () =>
+    new Date().toLocaleTimeString([], {
       hour: "2-digit",
       minute: "2-digit",
     });
-  };
 
   const markPresent = (userId) => {
     setAttendance((prev) => ({
@@ -51,14 +76,16 @@ const AttendancePage = () => {
   const markAbsent = (userId) => {
     setAttendance((prev) => ({
       ...prev,
-      [userId]: { status: "Absent", login: "--", logout: getTime() },
+      [userId]: { status: "Absent", login: "--", logout: "--" },
     }));
   };
 
   const markAllPresent = () => {
+    if (!window.confirm("Mark all users as Present?")) return;
+
     const updated = {};
-    users.forEach((user) => {
-      updated[user._id] = {
+    users.forEach((u) => {
+      updated[u._id] = {
         status: "Present",
         login: getTime(),
         logout: "--",
@@ -77,7 +104,7 @@ const AttendancePage = () => {
       }));
 
       const res = await fetch(
-        "https://boldvizbyte-backend-1.onrender.com/api/attendance",
+        `${API_BASE}/api/attendance`,
         {
           method: "POST",
           headers: {
@@ -117,6 +144,9 @@ const AttendancePage = () => {
     setSelectedDate(dateStr);
     setEventText(calendarEvents[dateStr]?.text || "");
     setEventType(calendarEvents[dateStr]?.type || "holiday");
+    setDate(dateStr);
+    setShowCalendar(false);
+
   };
 
   const saveEvent = () => {
@@ -160,6 +190,34 @@ const AttendancePage = () => {
     (a) => a.status === "Absent"
   ).length;
 
+  const getDayAttendanceStatus = (dateStr) => {
+    const day = calendarAttendance[dateStr];
+    if (!day) return null;
+
+    if (day.present && !day.absent) return "present";
+    if (day.absent && !day.present) return "absent";
+    if (day.present && day.absent) return "mixed";
+    return null;
+  };
+
+
+  useEffect(() => {
+    const monthStr = `${currentMonth.getFullYear()}-${String(
+      currentMonth.getMonth() + 1
+    ).padStart(2, "0")}`;
+
+    fetch(`${API_BASE}/api/attendance/monthly-summary?month=${monthStr}`)
+      .then(res => res.json())
+      .then(res => {
+        const map = {};
+        (res.data || []).forEach(d => {
+          map[d._id] = d;
+        });
+        setCalendarAttendance(map);
+      });
+  }, [currentMonth]);
+
+
   const { daysInMonth, startingDayOfWeek, year, month } = getDaysInMonth(currentMonth);
   const monthNames = ["January", "February", "March", "April", "May", "June",
     "July", "August", "September", "October", "November", "December"];
@@ -193,6 +251,7 @@ const AttendancePage = () => {
                 const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
                 const event = calendarEvents[dateStr];
                 const isSelected = selectedDate === dateStr;
+                const dayStatus = getDayAttendanceStatus(dateStr);
 
                 return (
                   <div
@@ -201,6 +260,9 @@ const AttendancePage = () => {
                       ...styles.calendarDay,
                       ...(event?.type === 'holiday' ? styles.holidayDay : {}),
                       ...(event?.type === 'deadline' ? styles.deadlineDay : {}),
+                      ...(dayStatus === "present" && styles.calendarPresent),
+                      ...(dayStatus === "absent" && styles.calendarAbsent),
+                      ...(dayStatus === "mixed" && styles.calendarMixed),
                       ...(isSelected ? styles.selectedDay : {})
                     }}
                     onClick={() => handleDateClick(day)}
@@ -315,17 +377,17 @@ const AttendancePage = () => {
             </tr>
           </thead>
           <tbody>
-            {users.map((user, index) => {
-              const record = attendance[user._id] || {
+            {users.map((u, i) => {
+              const record = attendance[u._id] || {
                 status: "--",
                 login: "--",
                 logout: "--",
               };
 
               return (
-                <tr key={user._id}>
-                  <td>{index + 1}</td>
-                  <td>{user.name}</td>
+                <tr key={u._id}>
+                  <td>{i + 1}</td>
+                  <td>{u.name}</td>
                   <td>{record.login}</td>
                   <td>{record.logout}</td>
                   <td
@@ -340,8 +402,8 @@ const AttendancePage = () => {
                     {record.status}
                   </td>
                   <td>
-                    <button style={styles.presentBtn} onClick={() => markPresent(user._id)}>Present</button>
-                    <button style={styles.absentBtn} onClick={() => markAbsent(user._id)}>Absent</button>
+                    <button style={styles.presentBtn} onClick={() => markPresent(u._id)}>Present</button>
+                    <button style={styles.absentBtn} onClick={() => markAbsent(u._id)}>Absent</button>
                   </td>
                 </tr>
               );
@@ -663,6 +725,19 @@ const styles = {
     cursor: "pointer",
     fontWeight: "bold",
   },
+  calendarPresent: {
+    background: "#e8f5e9",
+    borderColor: "#4caf50",
+  },
+  calendarAbsent: {
+    background: "#ffebee",
+    borderColor: "#f44336",
+  },
+  calendarMixed: {
+    background: "#fffde7",
+    borderColor: "#ff9800",
+  },
+
   legend: {
     display: "flex",
     gap: "20px",

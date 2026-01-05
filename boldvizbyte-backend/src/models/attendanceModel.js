@@ -8,7 +8,7 @@ const attendanceSchema = new mongoose.Schema(
       required: true,
     },
 
-    // 📅 Store date as YYYY-MM-DD
+    // YYYY-MM-DD
     date: {
       type: String,
       required: true,
@@ -30,106 +30,47 @@ const attendanceSchema = new mongoose.Schema(
       default: "--",
     },
   },
-  {
-    timestamps: true, // createdAt & updatedAt
-  }
+  { timestamps: true }
 );
 
-/* -------------------------------------------------
-   ✅ Prevent duplicate attendance
-   One user → one day → one record
--------------------------------------------------- */
+// Prevent duplicate attendance per user per day
 attendanceSchema.index({ userId: 1, date: 1 }, { unique: true });
-
-/* -------------------------------------------------
-   Normalize date (safety)
--------------------------------------------------- */
-attendanceSchema.pre("save", function (next) {
-  if (this.date instanceof Date) {
-    this.date = this.date.toISOString().split("T")[0];
-  }
-  next();
-});
 
 const Attendance = mongoose.model("Attendance", attendanceSchema);
 
-/* =================================================
-   📌 MODEL FUNCTIONS
-================================================= */
+/* ================= MODEL FUNCTIONS ================= */
 
-/**
- * Create or update attendance (UPSERT)
- */
-export async function upsertAttendance({
-  userId,
-  date,
-  status,
-  login,
-  logout,
-}) {
+// Create / Update (UPSERT)
+export function upsertAttendance(record) {
   return Attendance.findOneAndUpdate(
-    { userId, date },
+    { userId: record.userId, date: record.date },
     {
-      userId,
-      date,
-      status: status || "--",
-      login: login || "--",
-      logout: logout || "--",
+      status: record.status || "--",
+      login: record.login || "--",
+      logout: record.logout || "--",
     },
     { upsert: true, new: true }
-  ).lean();
+  );
 }
 
-/**
- * Get ALL attendance records
- */
 export function getAllAttendance() {
   return Attendance.find()
     .populate("userId", "name email")
-    .sort({ date: -1 })
-    .lean();
+    .sort({ date: -1 });
 }
 
-/**
- * Get attendance by ID
- */
 export function getAttendanceById(id) {
-  return Attendance.findById(id)
-    .populate("userId", "name email")
-    .lean();
+  return Attendance.findById(id).populate("userId", "name email");
 }
 
-/**
- * Update attendance by ID
- */
 export function updateAttendanceById(id, payload) {
-  payload.updatedAt = new Date();
-  return Attendance.findByIdAndUpdate(id, payload, {
-    new: true,
-  })
-    .populate("userId", "name email")
-    .lean();
+  return Attendance.findByIdAndUpdate(id, payload, { new: true });
 }
 
-/**
- * Delete attendance by ID
- */
 export function deleteAttendanceById(id) {
   return Attendance.findByIdAndDelete(id);
 }
 
-/*
-  Get attendance by date
- */
-export function getAttendanceByDate(date) {
-  return Attendance.find({ date })
-    .populate("userId", "name email")
-    .lean();
-}
-
-/**
- * Get attendance summary for dashboard
- */
 export async function getAttendanceSummaryByDate(date) {
   const present = await Attendance.countDocuments({
     date,
@@ -140,7 +81,6 @@ export async function getAttendanceSummaryByDate(date) {
     date,
     status: "Absent",
   });
-
 
   return { present, absent };
 }

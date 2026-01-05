@@ -1,37 +1,16 @@
 import express from "express";
 import * as attendanceController from "../controllers/attendanceController.js";
-import * as attendanceValidator from "../validators/attendanceValidator.js";
 
 const router = express.Router();
 
-// ✅ Put /summary BEFORE /:id to avoid conflict
+router.get("/monthly-summary", attendanceController.getMonthlyAttendanceSummary);
 router.get("/summary", attendanceController.getAttendanceSummary);
-
-router.post(
-  "/",
-  ...attendanceValidator.createAttendanceRules,
-  attendanceController.createAttendance
-);
-
+router.post("/", attendanceController.createAttendance);
 router.get("/", attendanceController.getAllAttendance);
+router.get("/:id", attendanceController.getAttendanceById);
+router.put("/:id", attendanceController.updateAttendance);
+router.delete("/:id", attendanceController.deleteAttendance);
 
-router.get(
-  "/:id",
-  ...attendanceValidator.idParamRule,
-  attendanceController.getAttendanceById
-);
 
-router.put(
-  "/:id",
-  ...attendanceValidator.idParamRule,
-  ...attendanceValidator.updateAttendanceRules,
-  attendanceController.updateAttendance
-);
-
-router.delete(
-  "/:id",
-  ...attendanceValidator.idParamRule,
-  attendanceController.deleteAttendance
-);
 
 export default router;

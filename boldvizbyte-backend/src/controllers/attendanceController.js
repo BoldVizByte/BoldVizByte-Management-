@@ -1,4 +1,4 @@
-import Attendance from "../models/attendanceModel.js";
+import * as AttendanceModel from "../models/attendanceModel.js";
 
 // Save multiple attendance records
 export async function createAttendance(req, res) {
@@ -10,116 +10,119 @@ export async function createAttendance(req, res) {
     }
 
     const results = [];
-
     for (const record of records) {
-      const saved = await Attendance.findOneAndUpdate(
-        { userId: record.userId, date: record.date },
-        {
-          status: record.status,
-          login: record.login || "--",
-          logout: record.logout || "--",
-        },
-        { upsert: true, new: true }
-      );
+      const saved = await AttendanceModel.upsertAttendance(record);
       results.push(saved);
     }
 
     res.status(201).json({
-      message: "Attendance saved",
+      message: "Attendance saved successfully",
       data: results,
     });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Server error", error: err.message });
+  }
+}
+
+// Get all attendance
+export async function getAllAttendance(req, res) {
+  try {
+    const { date } = req.query;
+
+    const query = date ? { date } : {};
+    const data = await Attendance.find(query)
+      .populate("userId", "name email");
+
+    res.json({ message: "Attendance records", data });
+  } catch (err) {
+    res.status(500).json({ message: "Server error", error: err.message });
+  }
+}
+
+// Get by ID
+export async function getAttendanceById(req, res) {
+  try {
+    const record = await AttendanceModel.getAttendanceById(req.params.id);
+    if (!record) {
+      return res.status(404).json({ message: "Attendance not found" });
+    }
+    res.json({ data: record });
+  } catch (err) {
+    res.status(500).json({ message: "Server error", error: err.message });
+  }
+}
+
+// Update
+export async function updateAttendance(req, res) {
+  try {
+    const updated = await AttendanceModel.updateAttendanceById(
+      req.params.id,
+      req.body
+    );
+    if (!updated) {
+      return res.status(404).json({ message: "Attendance not found" });
+    }
+    res.json({ message: "Attendance updated", data: updated });
+  } catch (err) {
+    res.status(500).json({ message: "Server error", error: err.message });
+  }
+}
+
+// Delete
+export async function deleteAttendance(req, res) {
+  try {
+    const deleted = await AttendanceModel.deleteAttendanceById(req.params.id);
+    if (!deleted) {
+      return res.status(404).json({ message: "Attendance not found" });
+    }
+    res.json({ message: "Attendance deleted" });
+  } catch (err) {
+    res.status(500).json({ message: "Server error", error: err.message });
+  }
+}
+
+// Summary (Dashboard)
+export async function getAttendanceSummary(req, res) {
+  try {
+    const date =
+      req.query.date || new Date().toISOString().split("T")[0];
+
+    const summary = await AttendanceModel.getAttendanceSummaryByDate(date);
+
+    res.json({
+      message: "Attendance summary",
+      date,
+      data: summary,
+    });
+  } catch (err) {
+    res.status(500).json({ message: "Server error", error: err.message });
+  }
+}
+
+export async function getMonthlyAttendanceSummary(req, res) {
+  try {
+    const { month } = req.query;
+
+    const data = await Attendance.aggregate([
+      { $match: { date: { $regex: `^${month}` } } },
+      {
+        $group: {
+          _id: "$date",
+          present: {
+            $sum: { $cond: [{ $eq: ["$status", "Present"] }, 1, 0] }
+          },
+          absent: {
+            $sum: { $cond: [{ $eq: ["$status", "Absent"] }, 1, 0] }
+          }
+        }
+      }
+    ]);
+
+    res.json({ data });
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Server error" });
   }
 }
 
-// Get all attendance records
-export async function getAllAttendance(req, res) {
-  try {
-    const allAttendance = await Attendance.find();
-    res.json({ message: "All attendance records", data: allAttendance });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: "Server error", error: err.message });
-  }
-}
-
-// Get attendance by ID
-export async function getAttendanceById(req, res) {
-  try {
-    const { id } = req.params;
-    const record = await Attendance.findById(id);
-    if (!record) {
-      return res.status(404).json({ message: "Attendance record not found" });
-    }
-    res.json({ message: `Attendance ${id}`, data: record });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: "Server error", error: err.message });
-  }
-}
-
-// Update attendance by ID
-export async function updateAttendance(req, res) {
-  try {
-    const { id } = req.params;
-    const updated = await Attendance.findByIdAndUpdate(id, req.body, { new: true });
-    if (!updated) {
-      return res.status(404).json({ message: "Attendance record not found" });
-    }
-    res.json({ message: `Attendance ${id} updated`, data: updated });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: "Server error", error: err.message });
-  }
-}
-
-// Delete attendance by ID
-export async function deleteAttendance(req, res) {
-  try {
-    const { id } = req.params;
-    const deleted = await Attendance.findByIdAndDelete(id);
-    if (!deleted) {
-      return res.status(404).json({ message: "Attendance record not found" });
-    }
-    res.json({ message: `Attendance ${id} deleted` });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: "Server error", error: err.message });
-  }
-}
-
-
-// Get attendance summary (any date) for dashboard cards
-export async function getAttendanceSummary(req, res) {
-  try {
-    const { date } = req.query;
-
-    const targetDate = date ? new Date(date) : new Date();
-
-    const start = new Date(targetDate);
-    start.setHours(0, 0, 0, 0);
-    const end = new Date(targetDate);
-    end.setHours(23, 59, 59, 999);
-
-    const present = await Attendance.countDocuments({
-      date: { $gte: start, $lte: end },
-      status: "present",
-    });
-
-    const absent = await Attendance.countDocuments({
-      date: { $gte: start, $lte: end },
-      status: "absent",
-    });
-
-    res.json({
-      message: "Attendance summary",
-      date: targetDate.toISOString().split("T")[0],
-      data: { present, absent },
-    });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: "Server error", error: err.message });
-  }
-}
