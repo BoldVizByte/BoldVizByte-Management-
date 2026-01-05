@@ -13,14 +13,22 @@ app.use(cors());
 app.use(express.json());
 
 app.use("/api/auth", authRoutes);
+app.use("/api/users", usersRoutes);
 app.use("/api/projects", projectsRoutes);
 app.use("/api/attendance", attendanceRoutes);
 app.use("/api/summary", summaryRoute);
 app.use("/api/tasks", tasksRoutes);
-app.use("/api/users", usersRoutes);
+
 
 app.get("/", (req, res) => {
   res.send("BoldVizByte Backend API Running");
+});
+
+app.use((req, res) => {
+  res.status(404).json({ 
+    message: "Route not found",
+    path: req.path 
+  });
 });
 
 export default app;

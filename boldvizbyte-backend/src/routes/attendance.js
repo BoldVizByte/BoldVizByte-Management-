@@ -4,6 +4,9 @@ import * as attendanceValidator from "../validators/attendanceValidator.js";
 
 const router = express.Router();
 
+// ✅ Put /summary BEFORE /:id to avoid conflict
+router.get("/summary", attendanceController.getAttendanceSummary);
+
 router.post(
   "/",
   ...attendanceValidator.createAttendanceRules,
@@ -30,7 +33,5 @@ router.delete(
   ...attendanceValidator.idParamRule,
   attendanceController.deleteAttendance
 );
-
-router.get("/summary", attendanceController.getAttendanceSummary);
 
 export default router;
