@@ -100,6 +100,9 @@ const AttendancePage = () => {
       const records = users.map((user) => ({
         userId: user._id,
         date,
+        status: attendance[user._id].status,
+        login: attendance[user._id].login,
+        logout: attendance[user._id].logout,
         ...attendance[user._id],
       }));
 

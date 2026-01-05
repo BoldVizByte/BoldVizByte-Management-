@@ -10,8 +10,25 @@ export async function createAttendance(req, res) {
     }
 
     const results = [];
+
     for (const record of records) {
-      const saved = await AttendanceModel.upsertAttendance(record);
+      if (!record.userId || !record.date) {
+        throw new Error("userId and date are required");
+      }
+
+      // ✅ FORCE YYYY-MM-DD FORMAT
+      const formattedDate = new Date(record.date)
+        .toISOString()
+        .split("T")[0];
+
+      const saved = await AttendanceModel.upsertAttendance({
+        userId: record.userId,
+        date: formattedDate,
+        status: record.status,
+        login: record.login,
+        logout: record.logout,
+      });
+
       results.push(saved);
     }
 
@@ -20,7 +37,7 @@ export async function createAttendance(req, res) {
       data: results,
     });
   } catch (err) {
-    console.error(err);
+    console.error("Attendance save error:", err);
     res.status(500).json({ message: "Server error", error: err.message });
   }
 }
