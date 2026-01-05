@@ -1,4 +1,4 @@
-import * as AttendanceModel from "../models/attendanceModel.js";
+import Attendance, * as AttendanceModel from "../models/attendanceModel.js";
 
 // Save multiple attendance records
 export async function createAttendance(req, res) {
@@ -29,16 +29,18 @@ export async function createAttendance(req, res) {
 export async function getAllAttendance(req, res) {
   try {
     const { date } = req.query;
-
     const query = date ? { date } : {};
+
     const data = await Attendance.find(query)
       .populate("userId", "name email");
 
     res.json({ message: "Attendance records", data });
   } catch (err) {
+    console.error("Attendance fetch error:", err);
     res.status(500).json({ message: "Server error", error: err.message });
   }
 }
+
 
 // Get by ID
 export async function getAttendanceById(req, res) {
@@ -104,7 +106,7 @@ export async function getMonthlyAttendanceSummary(req, res) {
   try {
     const { month } = req.query;
 
-    const data = await Attendance.aggregate([
+   const data = await Attendance.aggregate([
       { $match: { date: { $regex: `^${month}` } } },
       {
         $group: {

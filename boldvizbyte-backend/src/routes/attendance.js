@@ -11,6 +11,4 @@ router.get("/:id", attendanceController.getAttendanceById);
 router.put("/:id", attendanceController.updateAttendance);
 router.delete("/:id", attendanceController.deleteAttendance);
 
-
-
 export default router;

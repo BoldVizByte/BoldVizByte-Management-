@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 
-const API_BASE = "https://boldvizbyte-backend-1.onrender.com";
+const API_BASE = "https://boldvizbyte-management.onrender.com";
 
 const AttendancePage = () => {
   const [users, setUsers] = useState([]);
