@@ -135,8 +135,8 @@ const ProjectsPage = () => {
             <option value="Completed">Completed</option>
           </select>
 
-          <button onClick={handleAddProject} disabled={loading}>
-            {loading ? "Adding..." : "Add Project"}
+          <button onClick={handleAddProject}>
+            Add Project
           </button>
         </div>
 

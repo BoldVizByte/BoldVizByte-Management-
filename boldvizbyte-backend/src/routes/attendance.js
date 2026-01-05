@@ -31,4 +31,6 @@ router.delete(
   attendanceController.deleteAttendance
 );
 
+router.get("/summary", attendanceController.getAttendanceSummary);
+
 export default router;

@@ -8,6 +8,7 @@ const UsersPage = () => {
   const [newUserEmail, setNewUserEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [newUserPassword, setNewUserPassword] = useState("");
 
   // 🔹 Load users safely
   useEffect(() => {
@@ -36,29 +37,35 @@ const UsersPage = () => {
 
   // 🔹 Add user
   const handleAddUser = async () => {
-    setError("");
+  setError("");
 
-    if (!newUserName || !newUserEmail) {
-      setError("Please enter name and email");
-      return;
-    }
+  if (!newUserName || !newUserEmail || !newUserPassword) {
+    setError("Please enter name, email and password");
+    return;
+  }
+  if (newUserPassword.length < 8) {
+  setError("Password must be at least 8 characters");
+  return;
+}
+  try {
+    const res = await addUser({
+      name: newUserName,
+      email: newUserEmail,
+      password: newUserPassword, // ✅ THIS WAS MISSING
+    });
 
-    try {
-      const res = await addUser({
-        name: newUserName,
-        email: newUserEmail,
-      });
+    const createdUser = res.data?.data || res.data;
 
-      const createdUser = res.data?.user || res.data;
+    setUsers((prev) => [...prev, createdUser]);
+    setNewUserName("");
+    setNewUserEmail("");
+    setNewUserPassword("");
+  } catch (err) {
+    console.error("Add user failed", err);
+    setError(err.response?.data?.message || "Failed to add user");
+  }
+};
 
-      setUsers((prev) => [...prev, createdUser]);
-      setNewUserName("");
-      setNewUserEmail("");
-    } catch (err) {
-      console.error("Add user failed", err);
-      setError("Failed to add user");
-    }
-  };
 
   // 🔹 Delete user
   const handleDeleteUser = async (id) => {
@@ -73,10 +80,10 @@ const UsersPage = () => {
 
   return (
     <div className="users-page-container">
+      <div className="users-card">
       <h1>Users Management</h1>
 
       {error && <p className="error-text">{error}</p>}
-      {loading && <p>Loading users...</p>}
 
       {/* Add User Form */}
       <div className="add-user-form">
@@ -92,6 +99,13 @@ const UsersPage = () => {
           value={newUserEmail}
           onChange={(e) => setNewUserEmail(e.target.value)}
         />
+        <input
+          type="password"
+          placeholder="Password"
+          value={newUserPassword}
+          onChange={(e) => setNewUserPassword(e.target.value)}
+        />
+
         <button onClick={handleAddUser}>Add User</button>
       </div>
 
@@ -132,6 +146,7 @@ const UsersPage = () => {
           )}
         </tbody>
       </table>
+      </div>
     </div>
   );
 };

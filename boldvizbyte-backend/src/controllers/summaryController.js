@@ -5,31 +5,72 @@ import Attendance from "../models/attendanceModel.js";
 
 export const getSummary = async (req, res) => {
   try {
+    const { date } = req.query; // 🆕 read date from query
+
+    // USERS
     const totalUsers = await User.countDocuments();
     const newUsersThisWeek = await User.countDocuments({
-      createdAt: { $gte: new Date(Date.now() - 7*24*60*60*1000) } // last 7 days
+      createdAt: { $gte: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) }
     });
 
-    const totalTasks = await Task.countDocuments();
-    const completedTasks = await Task.countDocuments({ status: "completed" });
-    const pendingTasks = totalTasks - completedTasks;
+    // TASKS
+    const pendingTasks = await Task.countDocuments({
+      status: "Pending",
+    });
 
-    const attendanceRecords = await Attendance.find({ date: new Date().toISOString().slice(0,10) });
-    const present = attendanceRecords.filter(r => r.status === "present").length;
-    const absent = attendanceRecords.filter(r => r.status === "absent").length;
+    const completedTasks = await Task.countDocuments({
+      status: "Completed",
+    });
 
+    // ATTENDANCE (selected date or today)
+    const today = new Date().toISOString().split("T")[0];
+
+    const present = await Attendance.countDocuments({
+      date: today,
+      status: "Present",
+    });
+
+    const absent = await Attendance.countDocuments({
+      date: today,
+      status: "Absent",
+    });
+
+    // PROJECTS
     const totalProjects = await Project.countDocuments();
-    const completedProjects = await Project.countDocuments({ status: "completed" });
-    const runningProjects = totalProjects - completedProjects;
 
-    res.json({
-      users: { total: totalUsers, newThisWeek: newUsersThisWeek },
-      tasks: { completed: completedTasks, pending: pendingTasks },
-      attendance: { present, absent },
-      projects: { running: runningProjects, completed: completedProjects }
+    const runningProjects = await Project.countDocuments({
+      status: "In Progress",
+    });
+
+    const completedProjects = await Project.countDocuments({
+      status: "Completed",
+    });
+
+
+    res.status(200).json({
+      users: {
+        total: totalUsers,
+        newThisWeek: newUsersThisWeek
+      },
+      tasks: {
+        completed: completedTasks,
+        pending: pendingTasks
+      },
+      attendance: {
+        present,
+        absent
+      },
+      projects: {
+        total: totalProjects,
+        running: runningProjects,
+        completed: completedProjects
+      },
+      date: targetDate.toISOString().split("T")[0] // 🆕 return the date
     });
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: "Error fetching summary", error: err.message });
+    console.error("Dashboard summary error:", err);
+    res.status(500).json({
+      message: "Error fetching dashboard summary"
+    });
   }
 };

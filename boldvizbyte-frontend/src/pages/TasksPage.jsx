@@ -64,7 +64,6 @@ const TaskPage = () => {
     // }
 
     console.log("Creating task with:", taskData);
-
     try {
       setLoading(true);
 
@@ -186,8 +185,8 @@ const TaskPage = () => {
             </select>
           )}
 
-          <button onClick={addTask} disabled={loading}>
-            {loading ? "Adding..." : "Add Task"}
+          <button onClick={addTask}>
+           Add Task
           </button>
         </div>
 

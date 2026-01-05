@@ -1,43 +1,70 @@
 import User from "../models/usersModel.js";
+import bcrypt from "bcryptjs";
 
 // Create a new user
 export async function createUser(req, res) {
-  const { name, email, password } = req.body;
+  const { name, email, password, role } = req.body;
 
   if (!name || !email || !password) {
     return res.status(422).json({
-      message: "Validation failed",
-      details: { name, email, password },
+      message: "Name, email, and password are required",
     });
   }
 
   try {
-    const user = new User({ name, email, password });
-    await user.save(); // Save to MongoDB
-    res.status(201).json({ message: "User created", data: user });
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const user = new User({
+      name,
+      email,
+      password: hashedPassword,
+      role,
+    });
+
+    await user.save();
+
+    res.status(201).json({
+      message: "User created successfully",
+      data: user,
+    });
   } catch (err) {
-    res.status(500).json({ message: "Error creating user", error: err });
+    if (err.code === 11000) {
+      return res.status(422).json({ message: "Email already exists" });
+    }
+    res.status(500).json({ message: err.message });
   }
 }
 
-// Get all users
+// ✅ Get all users
 export async function getAllUsers(req, res) {
   try {
-    const users = await User.find(); // Fetch from MongoDB
-    res.json({ message: "All users", data: users });
+    const users = await User.find().select("-password");
+    res.status(200).json({
+      message: "Users fetched successfully",
+      data: users,
+    });
   } catch (err) {
-    res.status(500).json({ message: "Error fetching users", error: err });
+    console.error("Error fetching users:", err);
+    res.status(500).json({
+      message: "Server error",
+      error: err.message,
+    });
   }
 }
 
-// Get user by ID
+// ✅ Get user by ID
 export async function getUserById(req, res) {
   try {
-    const user = await User.findById(req.params.id);
-    if (!user) return res.status(404).json({ message: "User not found" });
-    res.json({ message: `User ${req.params.id}`, data: user });
+    const user = await User.findById(req.params.id).select("-password");
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    res.status(200).json({ data: user });
   } catch (err) {
-    res.status(500).json({ message: "Error fetching user", error: err });
+    res.status(500).json({
+      message: "Server error",
+      error: err.message,
+    });
   }
 }
 
@@ -45,15 +72,28 @@ export async function getUserById(req, res) {
 export async function updateUser(req, res) {
   try {
     const { name, email, password } = req.body;
+
+    const updateData = { name, email };
+    if (password) {
+      updateData.password = await bcrypt.hash(password, 10);
+    }
+
     const user = await User.findByIdAndUpdate(
       req.params.id,
-      { name, email, password },
+      updateData,
       { new: true }
-    );
-    if (!user) return res.status(404).json({ message: "User not found" });
-    res.json({ message: `User ${req.params.id} updated`, data: user });
+    ).select("-password");
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    res.json({ message: "User updated", data: user });
   } catch (err) {
-    res.status(500).json({ message: "Error updating user", error: err });
+    res.status(500).json({
+      message: "Error updating user",
+      error: err.message,
+    });
   }
 }
 
@@ -61,9 +101,14 @@ export async function updateUser(req, res) {
 export async function deleteUser(req, res) {
   try {
     const user = await User.findByIdAndDelete(req.params.id);
-    if (!user) return res.status(404).json({ message: "User not found" });
-    res.json({ message: `User ${req.params.id} deleted`, data: user });
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    res.json({ message: "User deleted" });
   } catch (err) {
-    res.status(500).json({ message: "Error deleting user", error: err });
+    res.status(500).json({
+      message: "Error deleting user",
+      error: err.message,
+    });
   }
 }
