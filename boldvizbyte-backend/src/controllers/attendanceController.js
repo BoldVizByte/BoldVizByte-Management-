@@ -5,37 +5,32 @@ export async function createAttendance(req, res) {
   try {
     const { records } = req.body;
 
-    if (!records || !Array.isArray(records) || records.length === 0) {
+    if (!Array.isArray(records) || records.length === 0) {
       return res.status(400).json({ message: "No attendance records provided" });
     }
 
-    // Save each record
-    const savedRecords = [];
+    const results = [];
+
     for (const record of records) {
-      const { userId, date, status, login, logout } = record;
-
-      // Basic validation
-      if (!userId || !date || !status) continue;
-
-      const attendance = new Attendance({
-        userId,
-        date,
-        status,
-        login: login || "--",
-        logout: logout || "--",
-      });
-
-      const saved = await attendance.save();
-      savedRecords.push(saved);
+      const saved = await Attendance.findOneAndUpdate(
+        { userId: record.userId, date: record.date },
+        {
+          status: record.status,
+          login: record.login || "--",
+          logout: record.logout || "--",
+        },
+        { upsert: true, new: true }
+      );
+      results.push(saved);
     }
 
     res.status(201).json({
-      message: "Attendance recorded successfully",
-      data: savedRecords,
+      message: "Attendance saved",
+      data: results,
     });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ message: "Server error", error: err.message });
+    res.status(500).json({ message: "Server error" });
   }
 }
 

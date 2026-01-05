@@ -19,7 +19,6 @@ app.use("/api/summary", summaryRoute);
 app.use("/api/tasks", tasksRoutes);
 app.use("/api/users", usersRoutes);
 
-
 app.get("/", (req, res) => {
   res.send("BoldVizByte Backend API Running");
 });

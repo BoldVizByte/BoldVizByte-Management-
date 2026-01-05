@@ -3,7 +3,6 @@ import { getSummary } from "../controllers/summaryController.js";
 
 const router = express.Router();
 
-// Dashboard summary route (supports optional ?date=YYYY-MM-DD)
-router.get("/summary", getSummary);
+router.get("/", getSummary);
 
 export default router;

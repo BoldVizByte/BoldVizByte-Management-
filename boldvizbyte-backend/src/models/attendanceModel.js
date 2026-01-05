@@ -141,6 +141,7 @@ export async function getAttendanceSummaryByDate(date) {
     status: "Absent",
   });
 
+
   return { present, absent };
 }
 
