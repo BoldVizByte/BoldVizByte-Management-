@@ -66,19 +66,48 @@ const AttendancePage = () => {
       minute: "2-digit",
     });
 
-  const markPresent = (userId) => {
+  const markPresent = async (userId) => {
+    const record = {
+      userId,
+      date,
+      status: "Present",
+      login: getTime(),
+      logout: "--",
+    };
+
     setAttendance((prev) => ({
       ...prev,
-      [userId]: { status: "Present", login: getTime(), logout: "--" },
+      [userId]: record,
     }));
+
+    await fetch(`${API_BASE}/api/attendance`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ records: [record] }),
+    });
   };
 
-  const markAbsent = (userId) => {
+  const markAbsent = async (userId) => {
+    const record = {
+      userId,
+      date,
+      status: "Absent",
+      login: "--",
+      logout: "--",
+    };
+
     setAttendance((prev) => ({
       ...prev,
-      [userId]: { status: "Absent", login: "--", logout: "--" },
+      [userId]: record,
     }));
+
+    await fetch(`${API_BASE}/api/attendance`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ records: [record] }),
+    });
   };
+
 
   const markAllPresent = () => {
     if (!window.confirm("Mark all users as Present?")) return;
@@ -97,14 +126,14 @@ const AttendancePage = () => {
   const saveAttendance = async () => {
     setSaving(true);
     try {
-      const records = users.map((user) => ({
-        userId: user._id,
-        date,
-        status: attendance[user._id].status,
-        login: attendance[user._id].login,
-        logout: attendance[user._id].logout,
-        ...attendance[user._id],
-      }));
+      const records = users
+        .filter((u) => attendance[u._id]?.status !== "--")
+        .map((user) => ({
+          userId: user._id,
+          date,
+          ...attendance[user._id],
+        }));
+    console.log("Saving records:", records);
 
       const res = await fetch(
         `${API_BASE}/api/attendance`,
@@ -334,24 +363,22 @@ const AttendancePage = () => {
         <div style={styles.attendanceSummaryRow}>
           <div style={styles.attendanceSummary}>
             <div style={{ ...styles.summaryCard, ...styles.presentCard }}>
-              <h2>{presentCount}</h2>
-              <p>Present</p>
+              <h2 style={styles.summaryNumber}>{presentCount}</h2>
+              <p style={styles.summaryLabel}>Present</p>
             </div>
             <div style={{ ...styles.summaryCard, ...styles.absentCard }}>
-              <h2>{absentCount}</h2>
-              <p>Absent</p>
+              <h2 style={styles.summaryNumber}>{absentCount}</h2>
+              <p style={styles.summaryLabel}>Absent</p>
             </div>
           </div>
 
           <div style={styles.attendanceControls}>
-            <div style={styles.attendanceDate}>
-              <input
-                type="date"
-                value={date}
-                onChange={(e) => setDate(e.target.value)}
-                style={styles.datePicker}
-              />
-            </div>
+            <input
+              type="date"
+              value={date}
+              onChange={(e) => setDate(e.target.value)}
+              style={styles.datePicker}
+            />
             <button style={styles.calendarBtn} onClick={() => setShowCalendar(true)}>
               📅 Calendar
             </button>
@@ -371,12 +398,12 @@ const AttendancePage = () => {
         <table style={styles.attendanceTable}>
           <thead>
             <tr>
-              <th>ID</th>
-              <th>Name</th>
-              <th>Login</th>
-              <th>Logout</th>
-              <th>Status</th>
-              <th>Action</th>
+              <th style={styles.th}>ID</th>
+              <th style={styles.th}>Name</th>
+              <th style={styles.th}>Login</th>
+              <th style={styles.th}>Logout</th>
+              <th style={styles.th}>Status</th>
+              <th style={styles.th}>Action</th>
             </tr>
           </thead>
           <tbody>
@@ -389,22 +416,23 @@ const AttendancePage = () => {
 
               return (
                 <tr key={u._id}>
-                  <td>{i + 1}</td>
-                  <td>{u.name}</td>
-                  <td>{record.login}</td>
-                  <td>{record.logout}</td>
+                  <td style={styles.td}>{i + 1}</td>
+                  <td style={styles.td}>{u.name}</td>
+                  <td style={styles.td}>{record.login}</td>
+                  <td style={styles.td}>{record.logout}</td>
                   <td
-                    style={
-                      record.status === "Present"
+                    style={{
+                      ...styles.td,
+                      ...(record.status === "Present"
                         ? styles.statusPresent
                         : record.status === "Absent"
                           ? styles.statusAbsent
-                          : {}
-                    }
+                          : {})
+                    }}
                   >
                     {record.status}
                   </td>
-                  <td>
+                  <td style={styles.td}>
                     <button style={styles.presentBtn} onClick={() => markPresent(u._id)}>Present</button>
                     <button style={styles.absentBtn} onClick={() => markAbsent(u._id)}>Absent</button>
                   </td>
@@ -421,7 +449,7 @@ const AttendancePage = () => {
 const styles = {
   attendanceContainer: {
     minHeight: "100vh",
-    padding: "40px",
+    padding: "40px 20px",
     backgroundImage: "url(/images/dashboard-bg.jpg)",
     backgroundSize: "cover",
     backgroundPosition: "center",
@@ -432,10 +460,9 @@ const styles = {
 
   attendanceCard: {
     width: "100%",
-    maxWidth: "1200px",
-    padding: "25px",
+    maxWidth: "1400px",
+    padding: "30px",
     borderRadius: "16px",
-    minHeight: "380px",
     backgroundImage:
       "linear-gradient(rgba(255,255,255,0.2), rgba(255,255,255,0.2)), url(/images/dashboard-bg.jpg)",
     backgroundSize: "cover",
@@ -445,28 +472,45 @@ const styles = {
 
   attendanceTitle: {
     textAlign: "center",
-    marginBottom: "20px",
+    marginBottom: "30px",
+    marginTop: "0",
     color: "black",
+    fontSize: "32px",
+    fontWeight: "bold",
   },
   attendanceSummaryRow: {
     display: "flex",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: "20px",
-    width: "100%",
+    marginBottom: "30px",
+    gap: "20px",
+    flexWrap: "wrap",
   },
   attendanceSummary: {
     display: "flex",
-    gap: "10px",
+    gap: "15px",
   },
   summaryCard: {
-    padding: "2px",
-    width: "80px",
-    height: "100px",
+    padding: "15px 20px",
+    minWidth: "120px",
     textAlign: "center",
     borderRadius: "12px",
     background: "rgba(0, 0, 0, 0.50)",
     boxShadow: "0 0 10px rgba(0,0,0,0.4)",
+    display: "flex",
+    flexDirection: "column",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  summaryNumber: {
+    margin: "0 0 5px 0",
+    fontSize: "36px",
+    fontWeight: "bold",
+  },
+  summaryLabel: {
+    margin: "0",
+    fontSize: "14px",
+    fontWeight: "500",
   },
   presentCard: {
     color: "#4caf50",
@@ -477,48 +521,55 @@ const styles = {
   attendanceControls: {
     display: "flex",
     alignItems: "center",
-    gap: "10px",
-  },
-  attendanceDate: {
-    marginRight: "10px",
+    gap: "12px",
+    flexWrap: "wrap",
   },
   datePicker: {
-    padding: "6px 10px",
-    borderRadius: "6px",
+    padding: "10px 14px",
+    borderRadius: "8px",
     border: "none",
     outline: "none",
     fontSize: "14px",
     color: "white",
     background: "rgba(0, 0, 0, 0.30)",
     boxShadow: "0 10px 30px rgba(0, 0, 0, 0.35)",
+    cursor: "pointer",
   },
   calendarBtn: {
     background: "#9c27b0",
     color: "white",
     border: "none",
-    padding: "8px 14px",
-    borderRadius: "6px",
+    padding: "10px 16px",
+    borderRadius: "8px",
     cursor: "pointer",
     fontWeight: "bold",
     fontSize: "14px",
+    boxShadow: "0 2px 8px rgba(0,0,0,0.2)",
+    transition: "all 0.2s",
   },
   markAllBtn: {
     backgroundColor: "#2196f3",
     color: "white",
-    padding: "8px 14px",
+    padding: "10px 16px",
     border: "none",
-    borderRadius: "6px",
+    borderRadius: "8px",
     cursor: "pointer",
     fontWeight: "bold",
+    fontSize: "14px",
+    boxShadow: "0 2px 8px rgba(0,0,0,0.2)",
+    transition: "all 0.2s",
   },
   saveAttendanceBtn: {
     backgroundColor: "#5aed5e",
     color: "white",
-    padding: "8px 14px",
+    padding: "10px 16px",
     border: "none",
-    borderRadius: "6px",
+    borderRadius: "8px",
     cursor: "pointer",
     fontWeight: "bold",
+    fontSize: "14px",
+    boxShadow: "0 2px 8px rgba(0,0,0,0.2)",
+    transition: "all 0.2s",
   },
   attendanceTable: {
     width: "100%",
@@ -527,9 +578,24 @@ const styles = {
     borderRadius: "12px",
     overflow: "hidden",
     color: "white",
+    boxShadow: "0 4px 12px rgba(0,0,0,0.3)",
+  },
+  th: {
+    padding: "16px",
+    textAlign: "left",
+    fontWeight: "bold",
+    fontSize: "14px",
+    borderBottom: "2px solid rgba(255,255,255,0.1)",
+    background: "rgba(0, 0, 0, 0.3)",
+  },
+  td: {
+    padding: "14px 16px",
+    textAlign: "left",
+    borderBottom: "1px solid rgba(255,255,255,0.05)",
+    fontSize: "14px",
   },
   statusPresent: {
-    color: "#4caf50",
+    color: "white",
     fontWeight: "bold",
   },
   statusAbsent: {
@@ -537,23 +603,29 @@ const styles = {
     fontWeight: "bold",
   },
   presentBtn: {
-    padding: "6px 12px",
-    marginRight: "5px",
+    padding: "8px 14px",
+    marginRight: "8px",
     border: "none",
     borderRadius: "6px",
     cursor: "pointer",
     fontWeight: "bold",
+    fontSize: "13px",
     backgroundColor: "#4caf50",
     color: "white",
+    boxShadow: "0 2px 6px rgba(0,0,0,0.2)",
+    transition: "all 0.2s",
   },
   absentBtn: {
-    padding: "6px 12px",
+    padding: "8px 14px",
     border: "none",
     borderRadius: "6px",
     cursor: "pointer",
     fontWeight: "bold",
+    fontSize: "13px",
     backgroundColor: "#f44336",
     color: "white",
+    boxShadow: "0 2px 6px rgba(0,0,0,0.2)",
+    transition: "all 0.2s",
   },
   calendarFullscreen: {
     position: "fixed",

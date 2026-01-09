@@ -26,10 +26,6 @@ const Dashboard = () => {
     }
   };
 
-  if (loading) {
-    return <p style={{ padding: "20px" }}>Loading dashboard...</p>;
-  }
-
   if (error) {
     return <p style={{ padding: "20px", color: "red" }}>{error}</p>;
   }

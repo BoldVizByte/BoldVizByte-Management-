@@ -1,6 +1,5 @@
 import Attendance, * as AttendanceModel from "../models/attendanceModel.js";
 
-// Save multiple attendance records
 export async function createAttendance(req, res) {
   try {
     const { records } = req.body;
@@ -16,10 +15,8 @@ export async function createAttendance(req, res) {
         throw new Error("userId and date are required");
       }
 
-      // ✅ FORCE YYYY-MM-DD FORMAT
-      const formattedDate = new Date(record.date)
-        .toISOString()
-        .split("T")[0];
+      // ✅ FIXED: DO NOT reformat date
+      const formattedDate = record.date;
 
       const saved = await AttendanceModel.upsertAttendance({
         userId: record.userId,
@@ -41,6 +38,7 @@ export async function createAttendance(req, res) {
     res.status(500).json({ message: "Server error", error: err.message });
   }
 }
+
 
 // Get all attendance
 export async function getAllAttendance(req, res) {
